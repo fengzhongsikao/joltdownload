@@ -11,6 +11,13 @@ import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import CloseIcon from "@mui/icons-material/Close";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Typography from "@mui/material/Typography";
+import TextareaAutosize from '@mui/material/TextareaAutosize';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -21,6 +28,29 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
 function App() {
   const [add, setAdd] = useState(false);
 
@@ -30,6 +60,13 @@ function App() {
   const handleCloseAdd = () => {
     setAdd(false);
   };
+
+  const [value, setValue] = useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
   return (
     <Container
       disableGutters
@@ -90,14 +127,59 @@ function App() {
             overflow: "auto",
           }}
         >
+          {/* 弹窗1 */}
           <BootstrapDialog
             onClose={handleCloseAdd}
             aria-labelledby="customized-dialog-title"
             open={add}
           >
-            <Button autoFocus onClick={handleCloseAdd}>
-              Save changes
-            </Button>
+            <Box
+              sx={{
+                borderBottom: 1,
+                borderColor: "divider",
+                flexDirection: "row",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                aria-label="basic tabs example"
+              >
+                <Tab label="链接任务" {...a11yProps(0)} />
+                <Tab label="种子任务" {...a11yProps(1)} />
+              </Tabs>
+              <CloseIcon
+                onClick={handleCloseAdd}
+                sx={{ marginRight: "10px" }}
+              />
+            </Box>
+            <CustomTabPanel value={value} index={0}>
+              <DialogContent>
+                <TextareaAutosize
+                  aria-label="minimum height"
+                  minRows={3}
+                  maxRows={5}
+                  autoComplete="false"
+                  placeholder="添加多个下载链接时，请确保每行只有一个链接(支持磁力链)"
+                  style={{ width: 500,height:80 }}
+                />
+              </DialogContent>
+            </CustomTabPanel>
+            <CustomTabPanel value={value} index={1}>
+              Item Two
+            </CustomTabPanel>
+
+            <DialogActions>
+              <Button autoFocus onClick={handleCloseAdd}>
+                取消
+              </Button>
+              <Button autoFocus onClick={handleCloseAdd}>
+                确定
+              </Button>
+            </DialogActions>
           </BootstrapDialog>
           <Outlet />
         </Box>
